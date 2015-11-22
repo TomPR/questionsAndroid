@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FirebaseListAdapter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">hk.ust.cse.hunkim.questionroom</a> &gt; <span class="el_source">FirebaseListAdapter.java</span></div><h1>FirebaseListAdapter.java</h1><pre class="source lang-java linenums">package hk.ust.cse.hunkim.questionroom;
+
+import android.app.Activity;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @param &lt;T&gt; The class type to use as a model for the data contained in the children of the given Firebase location
+ * @author greg
+ * @since 6/21/13
+ * &lt;p/&gt;
+ * This class is a generic way of backing an Android ListView with a Firebase location.
+ * It handles all of the child events at the given Firebase location. It marshals received data into the given
+ * class type. Extend this class and provide an implementation of &lt;code&gt;populateView&lt;/code&gt;, which will be given an
+ * instance of your list item mLayout and an instance your class that holds your data. Simply populate the view however
+ * you like and this class will handle updating the list as the data changes.
+ */
+public abstract class FirebaseListAdapter&lt;T&gt; extends BaseAdapter {
+
+    private Query mRef;
+    private Class&lt;T&gt; mModelClass;
+    private int mLayout;
+    private LayoutInflater mInflater;
+    private List&lt;T&gt; mModels;
+    private Map&lt;String, T&gt; mModelKeys;
+    private ChildEventListener mListener;
+
+    /**
+     * @param mRef        The Firebase location to watch for data changes. Can also be a slice of a location, using some
+     *                    combination of &lt;code&gt;limit()&lt;/code&gt;, &lt;code&gt;startAt()&lt;/code&gt;, and &lt;code&gt;endAt()&lt;/code&gt;,
+     * @param mModelClass Firebase will marshall the data at a location into an instance of a class that you provide
+     * @param mLayout     This is the mLayout used to represent a single list item. You will be responsible for populating an
+     *                    instance of the corresponding view with the data from an instance of mModelClass.
+     * @param activity    The activity containing the ListView
+     */
+<span class="fc" id="L49">    public FirebaseListAdapter(Query mRef, Class&lt;T&gt; mModelClass, int mLayout, Activity activity) {</span>
+<span class="fc" id="L50">        this.mRef = mRef;</span>
+<span class="fc" id="L51">        this.mModelClass = mModelClass;</span>
+<span class="fc" id="L52">        this.mLayout = mLayout;</span>
+<span class="fc" id="L53">        mInflater = activity.getLayoutInflater();</span>
+<span class="fc" id="L54">        mModels = new ArrayList&lt;T&gt;();</span>
+<span class="fc" id="L55">        mModelKeys = new HashMap&lt;String, T&gt;();</span>
+
+        // Look for all child events. We will then map them to our own internal ArrayList, which backs ListView
+<span class="fc" id="L58">        mListener = this.mRef.addChildEventListener(new ChildEventListener() {</span>
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+
+<span class="fc" id="L62">                T model = dataSnapshot.getValue(FirebaseListAdapter.this.mModelClass);</span>
+
+<span class="fc" id="L64">                String modelName = dataSnapshot.getKey();</span>
+<span class="fc" id="L65">                mModelKeys.put(modelName, model);</span>
+
+                // TOFIX: Any easy way to ser key?
+<span class="fc" id="L68">                setKey(modelName, model);</span>
+
+                // bug seeded
+                // mModels.add(-1, model);
+
+                // Insert into the correct location, based on previousChildName
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">                if (previousChildName == null) {</span>
+<span class="fc" id="L75">                    mModels.add(0, model);</span>
+                } else {
+<span class="nc" id="L77">                    T previousModel = mModelKeys.get(previousChildName);</span>
+<span class="nc" id="L78">                    int previousIndex = mModels.indexOf(previousModel);</span>
+<span class="nc" id="L79">                    int nextIndex = previousIndex + 1;</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                    if (nextIndex == mModels.size()) {</span>
+<span class="nc" id="L81">                        mModels.add(model);</span>
+                    } else {
+<span class="nc" id="L83">                        mModels.add(nextIndex, model);</span>
+                    }
+                }
+
+<span class="fc" id="L87">                notifyDataSetChanged();</span>
+<span class="fc" id="L88">            }</span>
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                // One of the mModels changed. Replace it in our list and name mapping
+<span class="fc" id="L94">                String modelName = dataSnapshot.getKey();</span>
+<span class="fc" id="L95">                T oldModel = mModelKeys.get(modelName);</span>
+<span class="fc" id="L96">                T newModel = dataSnapshot.getValue(FirebaseListAdapter.this.mModelClass);</span>
+
+                // TOFIX: Any easy way to ser key?
+<span class="fc" id="L99">                setKey(modelName, newModel);</span>
+
+
+<span class="fc" id="L102">                int index = mModels.indexOf(oldModel);</span>
+<span class="fc" id="L103">                mModels.set(index, newModel);</span>
+
+
+                // update map
+<span class="fc" id="L107">                mModelKeys.put(modelName, newModel);</span>
+
+<span class="fc" id="L109">                notifyDataSetChanged();</span>
+<span class="fc" id="L110">            }</span>
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                // A model was removed from the list. Remove it from our list and the name mapping
+<span class="nc" id="L116">                String modelName = dataSnapshot.getKey();</span>
+<span class="nc" id="L117">                T oldModel = mModelKeys.get(modelName);</span>
+<span class="nc" id="L118">                mModels.remove(oldModel);</span>
+<span class="nc" id="L119">                mModelKeys.remove(modelName);</span>
+<span class="nc" id="L120">                notifyDataSetChanged();</span>
+<span class="nc" id="L121">            }</span>
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+
+                // A model changed position in the list. Update our list accordingly
+<span class="fc" id="L127">                String modelName = dataSnapshot.getKey();</span>
+<span class="fc" id="L128">                T oldModel = mModelKeys.get(modelName);</span>
+<span class="fc" id="L129">                T newModel = dataSnapshot.getValue(FirebaseListAdapter.this.mModelClass);</span>
+
+                // TOFIX: Any easy way to ser key?
+<span class="fc" id="L132">                setKey(modelName, newModel);</span>
+
+<span class="fc" id="L134">                int index = mModels.indexOf(oldModel);</span>
+<span class="fc" id="L135">                mModels.remove(index);</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">                if (previousChildName == null) {</span>
+<span class="fc" id="L137">                    mModels.add(0, newModel);</span>
+                } else {
+<span class="nc" id="L139">                    T previousModel = mModelKeys.get(previousChildName);</span>
+<span class="nc" id="L140">                    int previousIndex = mModels.indexOf(previousModel);</span>
+<span class="nc" id="L141">                    int nextIndex = previousIndex + 1;</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                    if (nextIndex == mModels.size()) {</span>
+<span class="nc" id="L143">                        mModels.add(newModel);</span>
+                    } else {
+<span class="nc" id="L145">                        mModels.add(nextIndex, newModel);</span>
+                    }
+                }
+<span class="fc" id="L148">                notifyDataSetChanged();</span>
+<span class="fc" id="L149">            }</span>
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+<span class="nc" id="L153">                Log.e(&quot;FirebaseListAdapter&quot;, &quot;Listen was cancelled, no more updates will occur&quot;);</span>
+<span class="nc" id="L154">            }</span>
+
+        });
+<span class="fc" id="L157">    }</span>
+
+    public void cleanup() {
+        // We're being destroyed, let go of our mListener and forget about all of the mModels
+<span class="fc" id="L161">        mRef.removeEventListener(mListener);</span>
+<span class="fc" id="L162">        mModels.clear();</span>
+<span class="fc" id="L163">        mModelKeys.clear();</span>
+<span class="fc" id="L164">    }</span>
+
+
+    @Override
+    public int getCount() {
+<span class="fc" id="L169">        return mModels.size();</span>
+    }
+
+    @Override
+    public Object getItem(int i) {
+<span class="nc" id="L174">        return mModels.get(i);</span>
+    }
+
+    @Override
+    public long getItemId(int i) {
+<span class="fc" id="L179">        return i;</span>
+    }
+
+    @Override
+    public View getView(int i, View view, ViewGroup viewGroup) {
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        if (view == null) {</span>
+<span class="fc" id="L185">            view = mInflater.inflate(mLayout, viewGroup, false);</span>
+        }
+
+        // FIXME: Perhaps this is the first time to show data
+        // Let's order the list
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">        if (i == 0) {</span>
+<span class="fc" id="L191">            sortModels(mModels);</span>
+        }
+
+        // Let's get keys and models
+<span class="fc" id="L195">        T model = mModels.get(i);</span>
+
+        // Call out to subclass to marshall this model into the provided view
+<span class="fc" id="L198">        populateView(view, model);</span>
+<span class="fc" id="L199">        return view;</span>
+    }
+
+    /**
+     * Each time the data at the given Firebase location changes, this method will be called for each item that needs
+     * to be displayed. The arguments correspond to the mLayout and mModelClass given to the constructor of this class.
+     * &lt;p/&gt;
+     * Your implementation should populate the view using the data contained in the model.
+     *
+     * @param v     The view to populate
+     * @param model The object containing the data used to populate the view
+     */
+    protected abstract void populateView(View v, T model);
+
+    protected abstract void sortModels(List&lt;T&gt; mModels);
+
+    protected abstract void setKey(String key, T model);
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

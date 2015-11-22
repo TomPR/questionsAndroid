@@ -50,8 +50,7 @@ public class QuestionTest  extends TestCase {
     }
 
     @SmallTest
-    public void testequals()
-    {
+    public void testequals() {
         Question question1 = new Question("Hello!");
         Question question2 = new Question("Hello!");
         String notQuestion = "";

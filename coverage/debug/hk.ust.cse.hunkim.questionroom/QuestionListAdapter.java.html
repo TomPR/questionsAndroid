@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>QuestionListAdapter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">hk.ust.cse.hunkim.questionroom</a> &gt; <span class="el_source">QuestionListAdapter.java</span></div><h1>QuestionListAdapter.java</h1><pre class="source lang-java linenums">package hk.ust.cse.hunkim.questionroom;
+
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.text.Html;
+import android.text.format.DateFormat;
+import android.text.format.Time;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.firebase.client.Query;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import hk.ust.cse.hunkim.questionroom.db.DBUtil;
+import hk.ust.cse.hunkim.questionroom.question.Question;
+
+/**
+ * @author greg
+ * @since 6/21/13
+ * &lt;p/&gt;
+ * This class is an example of how to use FirebaseListAdapter. It uses the &lt;code&gt;Chat&lt;/code&gt; class to encapsulate the
+ * data for each individual chat message
+ */
+
+
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">public class QuestionListAdapter extends FirebaseListAdapter&lt;Question&gt; {</span>
+
+    // The mUsername for this client. We use this to indicate which messages originated from this user
+    private String roomName;
+    MainActivity activity;
+
+    public QuestionListAdapter(Query ref, Activity activity, int layout, String roomName) {
+<span class="fc" id="L42">        super(ref, Question.class, layout, activity);</span>
+
+        // Must be MainActivity
+<span class="pc bpc" id="L45" title="3 of 4 branches missed.">        assert (activity instanceof MainActivity);</span>
+
+<span class="fc" id="L47">        this.activity = (MainActivity) activity;</span>
+<span class="fc" id="L48">    }</span>
+
+
+
+    /**
+     * Bind an instance of the &lt;code&gt;Chat&lt;/code&gt; class to our view. This method is called by &lt;code&gt;FirebaseListAdapter&lt;/code&gt;
+     * when there is a data change, and we are given an instance of a View that corresponds to the layout that we passed
+     * to the constructor, as well as a single &lt;code&gt;Chat&lt;/code&gt; instance that represents the current data to bind.
+     *
+     * @param view     A view instance corresponding to the layout we passed to the constructor.
+     * @param question An instance representing the current state of a chat message
+     */
+    @Override
+    protected void populateView(View view, Question question) {
+<span class="fc" id="L62">        DBUtil dbUtil = activity.getDbutil();</span>
+
+        // Map a Chat object to an entry in our listview
+<span class="fc" id="L65">        int echo = question.getEcho();</span>
+<span class="fc" id="L66">        Button echoButton = (Button) view.findViewById(R.id.echo);</span>
+<span class="fc" id="L67">        echoButton.setText(&quot;&quot; + echo);</span>
+<span class="fc" id="L68">        echoButton.setTextColor(Color.BLUE);</span>
+
+
+<span class="fc" id="L71">        echoButton.setTag(question.getKey()); // Set tag for button</span>
+
+<span class="fc" id="L73">        echoButton.setOnClickListener(</span>
+<span class="fc" id="L74">                new View.OnClickListener() {</span>
+                    @Override
+                    public void onClick(View view) {
+<span class="fc" id="L77">                        MainActivity m = (MainActivity) view.getContext();</span>
+<span class="fc" id="L78">                        m.updateEcho((String) view.getTag());</span>
+<span class="fc" id="L79">                    }</span>
+                }
+
+        );
+
+<span class="fc" id="L84">        String msgString = &quot;&quot;;</span>
+
+<span class="fc" id="L86">        question.updateNewQuestion();</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (question.isNewQuestion()) {</span>
+<span class="fc" id="L88">            msgString += &quot;&lt;font color=red&gt;NEW &lt;/font&gt;&quot;;</span>
+        }
+
+<span class="fc" id="L91">        msgString += &quot;&lt;B&gt;&quot; + question.getHead() + &quot;&lt;/B&gt;&quot; + question.getDesc() + &quot;&lt;br /&gt;&quot; + &quot;Posted &quot; + getTimeAgo(question.getTimestamp()) ;</span>
+
+<span class="fc" id="L93">        ((TextView) view.findViewById(R.id.head_desc)).setText(Html.fromHtml(msgString));</span>
+<span class="fc" id="L94">        view.setOnClickListener(new View.OnClickListener() {</span>
+                                    @Override
+                                    public void onClick(View view) {
+<span class="nc" id="L97">                                        MainActivity m = (MainActivity) view.getContext();</span>
+<span class="nc" id="L98">                                        m.updateEcho((String) view.getTag());</span>
+<span class="nc" id="L99">                                    }</span>
+                                }
+
+        );
+
+        // check if we already clicked
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        boolean clickable = !dbUtil.contains(question.getKey());</span>
+
+<span class="fc" id="L107">        echoButton.setClickable(clickable);</span>
+<span class="fc" id="L108">        echoButton.setEnabled(clickable);</span>
+<span class="fc" id="L109">        view.setClickable(clickable);</span>
+
+
+        // http://stackoverflow.com/questions/8743120/how-to-grey-out-a-button
+        // grey out our button
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (clickable) {</span>
+<span class="fc" id="L115">            echoButton.getBackground().setColorFilter(null);</span>
+        } else {
+<span class="fc" id="L117">            echoButton.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY);</span>
+        }
+
+
+<span class="fc" id="L121">        view.setTag(question.getKey());  // store key in the view</span>
+<span class="fc" id="L122">    }</span>
+
+    @Override
+    protected void sortModels(List&lt;Question&gt; mModels) {
+<span class="fc" id="L126">        Collections.sort(mModels);</span>
+<span class="fc" id="L127">    }</span>
+
+    @Override
+    protected void setKey(String key, Question model) {
+<span class="fc" id="L131">        model.setKey(key);</span>
+<span class="fc" id="L132">    }</span>
+
+    private String getDate(long time) {
+<span class="nc" id="L135">        Calendar cal = Calendar.getInstance(Locale.ENGLISH);</span>
+<span class="nc" id="L136">        cal.setTimeInMillis(time);</span>
+<span class="nc" id="L137">        String date = DateFormat.format(&quot;dd-MM-yyyy&quot;, cal).toString();</span>
+<span class="nc" id="L138">        return date;</span>
+    }
+
+    private Long getAgo(long time) {
+<span class="nc" id="L142">        Calendar cal = Calendar.getInstance(Locale.ENGLISH) ;</span>
+<span class="nc" id="L143">        long nowTime = cal.getTimeInMillis();</span>
+<span class="nc" id="L144">        long ago = nowTime - time ;</span>
+<span class="nc" id="L145">        return ago ;</span>
+    }
+
+    private static final int SECOND_MILLIS = 1000;
+    private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
+    private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
+    private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
+
+
+    public static String getTimeAgo(long time) {
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        if (time &lt; 1000000000000L) {</span>
+            // if timestamp given in seconds, convert to millis
+<span class="fc" id="L157">            time *= 1000;</span>
+        }
+
+<span class="fc" id="L160">        Calendar cal = Calendar.getInstance(Locale.ENGLISH) ;</span>
+<span class="fc" id="L161">        long nowTime = cal.getTimeInMillis() ;</span>
+
+<span class="fc" id="L163">        final long diff = nowTime - time;</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (diff &lt; MINUTE_MILLIS) {</span>
+<span class="fc" id="L165">            return &quot;just now&quot;;</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        } else if (diff &lt; 2 * MINUTE_MILLIS) {</span>
+<span class="fc" id="L167">            return &quot;a minute ago&quot;;</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        } else if (diff &lt; 50 * MINUTE_MILLIS) {</span>
+<span class="fc" id="L169">            return diff / MINUTE_MILLIS + &quot; minutes ago&quot;;</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">        } else if (diff &lt; 90 * MINUTE_MILLIS) {</span>
+<span class="fc" id="L171">            return &quot;an hour ago&quot;;</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        } else if (diff &lt; 24 * HOUR_MILLIS) {</span>
+<span class="fc" id="L173">            return diff / HOUR_MILLIS + &quot; hours ago&quot;;</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        } else if (diff &lt; 48 * HOUR_MILLIS) {</span>
+<span class="fc" id="L175">            return &quot;yesterday&quot;;</span>
+        } else {
+<span class="fc" id="L177">            return diff / DAY_MILLIS + &quot; days ago&quot;;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>
