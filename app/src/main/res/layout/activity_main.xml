@@ -21,31 +21,58 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/close"
-        android:layout_above="@+id/listFooter"
+        android:layout_above="@+id/sendMessage"
         android:transcriptMode="alwaysScroll" />
 
-
     <LinearLayout
-        android:id="@+id/listFooter"
+        android:id="@+id/sendMessage"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal">
+        android:layout_alignParentBottom="false"
+        android:orientation="horizontal"
+        android:layout_above="@+id/imageFooter">
 
         <EditText
             android:id="@+id/messageInput"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="textShortMessage"
             android:lines="1"
             android:singleLine="true" />
 
-        <ImageButton
+        <Button
             android:id="@+id/sendButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_send" />
+            android:text="Ask"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/imageFooter"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
+
+        <EditText
+            android:id="@+id/imageContent"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_weight="1"
+            android:inputType="textShortMessage"
+            android:lines="1"
+            android:singleLine="true"
+            />
+
+        <Button
+            android:id="@+id/sendImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ask with image"
+            />
+
     </LinearLayout>
 
 
