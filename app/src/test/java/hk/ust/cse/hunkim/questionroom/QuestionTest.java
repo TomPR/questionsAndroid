@@ -23,7 +23,6 @@ public class QuestionTest  extends TestCase {
     }
 
     @SmallTest
-
     public void testChatFirstString() {
         String[] strHead = {
                 "Hello? This is very nice", "Hello?",
@@ -35,12 +34,43 @@ public class QuestionTest  extends TestCase {
             String head = q.getFirstSentence(strHead[i]);
             assertEquals("Chat.getFirstSentence", strHead[i+1], head);
         }
+
+        String testString = "Hi! I'm a test string. Yep, that's all I am.";
+        String testHead = q.getFirstSentence(testString);
+        assertEquals(testHead, "Hi!");
+
+        String testString2 = "This is a string with no seperators";
+        String testHead2 = q.getFirstSentence(testString2);
+        assertEquals(testHead2, "This is a string with no seperators");
     }
 
     @SmallTest
-
     public void testHead() {
         assertEquals("Head", "Hello?", q.getHead());
     }
 
+    @SmallTest
+    public void testequals()
+    {
+        Question question1 = new Question("Hello!");
+        Question question2 = new Question("Hello!");
+        String notQuestion = "";
+
+        assertFalse(question1.equals(notQuestion));
+        //assertTrue(question1.equals(question2));
+        assertTrue(question1.equals(question2));
+        assertTrue(question1.equals(question1));
+        assertTrue(question2.equals(question2));
+    }
+
+    @SmallTest
+    public void testcompareTo() throws InterruptedException {
+        Question question1 = new Question("Hello!");
+        Thread.sleep(5000);
+        Question question2 = new Question("Hello too!");
+
+        assertEquals(-1, question1.compareTo(question2));
+        assertEquals(1, question2.compareTo(question1));
+        assertEquals(0, question1.compareTo(question1));
+    }
 }
