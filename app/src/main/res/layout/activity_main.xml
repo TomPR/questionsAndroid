@@ -22,7 +22,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/close"
         android:layout_above="@+id/sendMessage"
-        android:transcriptMode="alwaysScroll" />
+        android:transcriptMode="alwaysScroll"
+        tools:listitem="@android:layout/simple_expandable_list_item_2" />
 
     <LinearLayout
         android:id="@+id/sendMessage"

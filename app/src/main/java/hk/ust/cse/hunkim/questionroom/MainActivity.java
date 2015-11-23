@@ -18,6 +18,8 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
+import java.util.ArrayList;
+
 import hk.ust.cse.hunkim.questionroom.db.DBHelper;
 import hk.ust.cse.hunkim.questionroom.db.DBUtil;
 import hk.ust.cse.hunkim.questionroom.question.Question;
@@ -26,7 +28,7 @@ public class MainActivity extends ListActivity {
 
     // TODO: change this to your own Firebase URL
     //private static final String FIREBASE_URL = "https://blistering-inferno-5925.firebaseio.com/";
-    private static final String FIREBASE_URL = "https://questionsandroidtest.firebaseio.com/";
+    private static final String FIREBASE_URL = "https://questionandroidreply.firebaseio.com/";
 
     private String roomName;
     private Firebase mFirebaseRef;
@@ -138,10 +140,57 @@ public class MainActivity extends ListActivity {
         if (!input.equals("")) {
             // Create our 'model', a Chat object
             Question question = new Question(input);
+            //question.getComments().add(new Question(input));
+            //question.getComments().add(new Question(input));
+            //question.getComments().add(new Question(input));
             // Create a new, auto-generated child of that chat location, and save our chat data there
             mFirebaseRef.push().setValue(question);
             inputText.setText("");
         }
+    }
+
+    public void sendComment(String key) {
+        /*EditText inputText = (EditText) findViewById(R.id.messageInput);
+        final String input = inputText.getText().toString();
+
+        if (!input.equals("")) {
+            final Firebase questionRef = mFirebaseRef.child(key);
+            questionRef.addListenerForSingleValueEvent(
+                    new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Question question = (Question) dataSnapshot.getValue();
+                            Question comment = new Question(input);
+                            question.addComment(comment);
+                            questionRef.setValue(question);
+                        }
+
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
+
+                        }
+                    }
+            );
+            inputText.setText("");
+        }*/
+
+        final Firebase questionRef = mFirebaseRef.child(key);
+        questionRef.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Question questionValue = (Question) dataSnapshot.getValue();
+                        //Log.e("Echo update:", "" + echoValue);
+
+                        questionRef.setValue(questionValue);
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                }
+        );
     }
 
     public void updateEcho(String key) {

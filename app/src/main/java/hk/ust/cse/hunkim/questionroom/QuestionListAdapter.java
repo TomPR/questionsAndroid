@@ -8,7 +8,10 @@ import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.format.Time;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.firebase.client.Query;
@@ -81,6 +84,23 @@ public class QuestionListAdapter extends FirebaseListAdapter<Question> {
 
         );
 
+
+
+        Button commentButton = (Button) view.findViewById(R.id.reply);
+        commentButton.setTag(question.getKey());
+        commentButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        MainActivity m = (MainActivity) view.getContext();
+                        //m.sendComment((String) view.getTag());
+                        m.sendComment((String) view.getTag());
+                    }
+                }
+        );
+
+
+
         String msgString = "";
 
         question.updateNewQuestion();
@@ -118,7 +138,55 @@ public class QuestionListAdapter extends FirebaseListAdapter<Question> {
         }
 
 
+
         view.setTag(question.getKey());  // store key in the view
+
+
+
+        //LinearLayout ll = (LinearLayout) view.findViewById(R.id.questionLL);
+        //int i = 0;
+
+        /*if (question.getComments() != null) {
+            for(Question comment : question.getComments()) {
+                i++;
+            }
+        }*/
+
+        //for(Question comment : question.getComments()) {
+        //for (int i = 0; i < 5; i ++) {
+            /*TextView tv = new TextView(view.getContext());
+            tv.setText("Hi there!");
+            ll.addView(tv);*/
+            //i++;
+        //}
+
+        LinearLayout ll = (LinearLayout) view.findViewById(R.id.commentLL);
+        if (question.getComments() != null) {
+            for(Question comment : question.getComments()) {
+                String commentString = "";
+                commentString += "<B>" + comment.getHead() + "</B>" + comment.getDesc() + "<br />" + "Posted " + getTimeAgo(comment.getTimestamp());
+
+                TextView tv = new TextView(view.getContext());
+                tv.setText(commentString);
+                ll.addView(tv);
+            }
+        }
+
+
+        /*LinearLayout ll = (LinearLayout) view.findViewById(R.id.questionLL);
+        for(Question comment : question.getComments())
+        {
+            TextView tv = new TextView(view.getContext());
+
+            String commentString = "";
+            commentString += "<B>" + comment.getHead() + "</B>" + comment.getDesc() + "<br />" + "Posted " + getTimeAgo(comment.getTimestamp());
+            //((TextView) view.findViewById(R.id.commentHeadDesc)).setText(Html.fromHtml(commentString));
+
+            tv.setText(commentString);
+            ll.addView(tv);
+        }*/
+
+
     }
 
     @Override
