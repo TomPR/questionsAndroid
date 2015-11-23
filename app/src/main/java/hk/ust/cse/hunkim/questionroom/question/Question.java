@@ -25,6 +25,8 @@ public class Question implements Comparable<Question> {
     private int order;
     private boolean newQuestion;
     private ArrayList<Question> comments;
+    private String dateString;
+    private String trustedDesc;
 
     public ArrayList<Question> getComments()
     {
@@ -43,13 +45,9 @@ public class Question implements Comparable<Question> {
         return dateString;
     }
 
-    private String dateString;
-
     public String getTrustedDesc() {
         return trustedDesc;
     }
-
-    private String trustedDesc;
 
     // Required default constructor for Firebase object mapping
     @SuppressWarnings("unused")
@@ -75,6 +73,9 @@ public class Question implements Comparable<Question> {
         this.timestamp = new Date().getTime();
 
         this.comments = null;
+
+        this.dateString = "1 second";
+        this.trustedDesc = "...";
     }
 
     /**

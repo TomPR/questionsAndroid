@@ -149,7 +149,7 @@ public class MainActivity extends ListActivity {
         }
     }
 
-    public void sendComment(String key) {
+    public void sendComment(String key, Question question) {
         /*EditText inputText = (EditText) findViewById(R.id.messageInput);
         final String input = inputText.getText().toString();
 
@@ -175,14 +175,25 @@ public class MainActivity extends ListActivity {
         }*/
 
         final Firebase questionRef = mFirebaseRef.child(key);
-        questionRef.addListenerForSingleValueEvent(
+        EditText inputText = (EditText) findViewById(R.id.messageInput);
+        final String input = inputText.getText().toString();
+        if (!input.equals("")) {
+            Question updatedQuestion = question;
+            Question comment = new Question(input);
+            updatedQuestion.addComment(comment);
+            questionRef.setValue(updatedQuestion);
+        }
+        inputText.setText("");
+
+        /*questionRef.addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        Question questionValue = (Question) dataSnapshot.getValue();
+                        //Question questionValue = (Question) dataSnapshot.getValue();
                         //Log.e("Echo update:", "" + echoValue);
 
-                        questionRef.setValue(questionValue);
+                        //questionRef.setValue(questionValue);
+                        //mFirebaseRef.push().setValue(questionValue);
                     }
 
                     @Override
@@ -190,7 +201,25 @@ public class MainActivity extends ListActivity {
 
                     }
                 }
-        );
+        );*/
+
+        //final Firebase echoRef = mFirebaseRef.child(key).child("echo");
+        /*echoRef.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Long echoValue = (Long) dataSnapshot.getValue();
+                        Log.e("Echo update:", "" + echoValue);
+
+                        echoRef.setValue(echoValue + 1);
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                }
+        );*/
     }
 
     public void updateEcho(String key) {

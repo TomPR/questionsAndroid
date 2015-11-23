@@ -11,17 +11,17 @@
     <Button
         android:id="@+id/echo"
         android:drawableLeft="@drawable/like24"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_row="0"
         android:layout_marginLeft="0dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
 
     <Button
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:text="R"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reply"
         android:id="@+id/reply"
         android:layout_weight="0.07"
         android:layout_marginLeft="0dp"

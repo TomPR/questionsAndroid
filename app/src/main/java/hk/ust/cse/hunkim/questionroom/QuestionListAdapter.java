@@ -85,7 +85,7 @@ public class QuestionListAdapter extends FirebaseListAdapter<Question> {
         );
 
 
-
+        final Question temp = question;
         Button commentButton = (Button) view.findViewById(R.id.reply);
         commentButton.setTag(question.getKey());
         commentButton.setOnClickListener(
@@ -93,8 +93,7 @@ public class QuestionListAdapter extends FirebaseListAdapter<Question> {
                     @Override
                     public void onClick(View view) {
                         MainActivity m = (MainActivity) view.getContext();
-                        //m.sendComment((String) view.getTag());
-                        m.sendComment((String) view.getTag());
+                        m.sendComment((String) view.getTag(), temp);
                     }
                 }
         );
@@ -161,10 +160,11 @@ public class QuestionListAdapter extends FirebaseListAdapter<Question> {
         //}
 
         LinearLayout ll = (LinearLayout) view.findViewById(R.id.commentLL);
+        ll.removeAllViews();
         if (question.getComments() != null) {
             for(Question comment : question.getComments()) {
                 String commentString = "";
-                commentString += "<B>" + comment.getHead() + "</B>" + comment.getDesc() + "<br />" + "Posted " + getTimeAgo(comment.getTimestamp());
+                commentString += comment.getHead() + comment.getDesc() + "     Posted " + getTimeAgo(comment.getTimestamp());
 
                 TextView tv = new TextView(view.getContext());
                 tv.setText(commentString);
